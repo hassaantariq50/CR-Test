@@ -49,4 +49,37 @@ const userType = new GraphQLObjectType({
   }),
 });
 
-module.exports = { jwtToken, userType };
+const projectType = new GraphQLObjectType({
+  name: "project",
+  fields: () => ({
+    _id: {
+      type: GraphQLID,
+    },
+    projectTitle: {
+      type: GraphQLString,
+    },
+    description: {
+      type: GraphQLString,
+    },
+    imageUrl: {
+      type: GraphQLString,
+    },
+    techStack: {
+      type: GraphQLList(GraphQLString),
+    },
+    githubLink: {
+      type: GraphQLString,
+    },
+    liveLink: {
+      type: GraphQLString,
+    },
+    status: {
+      type: GraphQLFloat,
+    },
+    createdAt: {
+      type: GraphQLDateTime,
+    },
+  }),
+});
+
+module.exports = { jwtToken, userType, projectType };

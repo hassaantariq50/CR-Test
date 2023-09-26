@@ -7,6 +7,9 @@ require("dotenv").config();
 const patternHelper = require("../helper/pattern");
 //require Controllers here
 const userController = require("../controller/user");
+const { projectType } = require("../schema/types");
+const verifyToken = require("../services/verifyToken");
+const projectController = require("../controller/project");
 
 //require types here
 const userType = require("../schema/types").userType;
@@ -114,6 +117,120 @@ const Mutation = new GraphQLObjectType({
             }
           });
         }
+      },
+    },
+
+    //This API is to add a new project
+    addProject: {
+      type: projectType,
+      args: {
+        projectTitle: {
+          type: GraphQLString,
+        },
+        description: {
+          type: GraphQLString,
+        },
+        imageUrl: {
+          type: GraphQLString,
+        },
+        techStack: {
+          type: GraphQLList(GraphQLString),
+        },
+        githubLink: {
+          type: GraphQLString,
+        },
+        liveLink: {
+          type: GraphQLString,
+        },
+        createdAt: {
+          type: GraphQLDateTime,
+        },
+      },
+      resolve(parent, args, request) {
+        return new Promise(async (resolve, reject) => {
+          verifyToken(request).then(async (res) => {
+            if (res.error) {
+              reject(new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR));
+            } else {
+              let createProjectObj = {
+                userId: res.data._id,
+                projectTitle: args.projectTitle,
+                description: args.description,
+                imageUrl: args.imageUrl,
+                techStack: args.techStack,
+                githubLink: args.githubLink,
+                liveLink: args.liveLink,
+                status: 1,
+              };
+
+              let createProject = await projectController.insertProject(
+                createProjectObj
+              );
+
+              resolve(createProject);
+            }
+          });
+        });
+      },
+    },
+
+    //This API is to add a new project
+    updateProject: {
+      type: projectType,
+      args: {
+        projectId: {
+          type: GraphQLString,
+        },
+        projectTitle: {
+          type: GraphQLString,
+        },
+        description: {
+          type: GraphQLString,
+        },
+        imageUrl: {
+          type: GraphQLString,
+        },
+        techStack: {
+          type: GraphQLList(GraphQLString),
+        },
+        githubLink: {
+          type: GraphQLString,
+        },
+        liveLink: {
+          type: GraphQLString,
+        },
+        status: {
+          type: GraphQLFloat,
+        },
+        createdAt: {
+          type: GraphQLDateTime,
+        },
+      },
+      resolve(parent, args, request) {
+        return new Promise(async (resolve, reject) => {
+          verifyToken(request).then(async (res) => {
+            if (res.error) {
+              reject(new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR));
+            } else {
+              let updateProjectObj = {
+                _id: args.projectId,
+                projectTitle: args.projectTitle,
+                description: args.description,
+                imageUrl: args.imageUrl,
+                techStack: args.techStack,
+                githubLink: args.githubLink,
+                liveLink: args.liveLink,
+                status: args.status ? args.status : 1,
+              };
+
+              let createProject = await projectController.updateProjectById(
+                updateProjectObj
+              );
+
+              resolve(createProject);
+            }
+          });
+        });
       },
     },
 

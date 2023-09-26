@@ -5,6 +5,9 @@ const { errorName } = require("../utils/error");
 const userModel = require("../models/user");
 //Require Controllers here
 const userController = require("../controller/user");
+const verifyToken = require("../services/verifyToken");
+const projectController = require("../controller/project");
+const { projectType } = require("../schema/types");
 //Require Types here
 const userType = require("../schema/types").userType;
 
@@ -26,60 +29,23 @@ const RootQuery = new GraphQLObjectType({
   name: "RootQueryType",
   fields: {
     //Query API's
-    user: {
-      type: userType,
-      args: {
-        _id: {
-          type: GraphQLID,
-        },
-      },
-      resolve(parent, args) {
-        return userModel.findById(args._id);
-      },
-    },
 
-    //This API is used to get user's own profile
-    getUserProfile: {
-      type: userType,
+    //This API is used to get all my projects
+    getAllProjects: {
+      type: new GraphQLList(projectType),
       resolve(parent, args, request) {
         return new Promise((resolve, reject) => {
-          if (request.headers.hasOwnProperty("authorization")) {
-            userController
-              .verifyToken(request.headers["authorization"])
-              .then(function (decoded) {
-                let currentUser = {};
-                currentUser.currentRoleId = decoded.roleId;
-                currentUser.currentEmail = decoded.email;
-                currentUser.currentEmailId = decoded.email;
-                currentUser.currentId = decoded.id;
-                userController
-                  .existingUserById(currentUser.currentId)
-                  .then(function (response) {
-                    if (response != null && response.length > 0) {
-                      delete response[0].password;
-                      resolve(response[0]);
-                    } else {
-                      throw new Error(errorName.USER_NOT_FOUND_ERROR);
-                    }
-                  })
-                  .catch(function (err) {
-                    reject(err);
-                  });
-              })
-              .catch(function (err) {
-                reject(new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR));
-              });
-          } else {
-            throw new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR);
-          }
+          verifyToken(request).then(async (res) => {
+            if (res.error) {
+              reject(new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR));
+            } else {
+              let getMyProjects = await projectController.getProjectByUserId(
+                res.data._id
+              );
+              resolve(getMyProjects);
+            }
+          });
         });
-      },
-    },
-
-    users: {
-      type: new GraphQLList(userType),
-      resolve(parent, args) {
-        return userModel.find({});
       },
     },
   },
