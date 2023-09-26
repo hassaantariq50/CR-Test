@@ -1,0 +1,167 @@
+const graphql = require("graphql");
+const graphqlData = require("graphql-iso-date");
+const { errorName } = require("../utils/error");
+const saltRounds = 10;
+const crypto = require("bcrypt");
+require("dotenv").config();
+const patternHelper = require("../helper/pattern");
+//require Controllers here
+const userController = require("../controller/user");
+
+//require types here
+const userType = require("../schema/types").userType;
+
+const {
+  GraphQLObjectType,
+  GraphQLInputObjectType,
+  GraphQLString,
+  GraphQLBoolean,
+  GraphQLSchema,
+  GraphQLID,
+  GraphQLFloat,
+  GraphQLList,
+  GraphQLNonNull,
+} = graphql;
+
+const { GraphQLDate, GraphQLTime, GraphQLDateTime } = graphqlData;
+
+const Mutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    //Mutation API's
+
+    //This API is used to signup the user
+    signupUser: {
+      type: userType,
+      args: {
+        fullName: {
+          type: GraphQLString,
+        },
+        email: {
+          type: GraphQLString,
+        },
+        password: {
+          type: GraphQLString,
+        },
+      },
+      resolve(parent, args) {
+        if (
+          !args.hasOwnProperty("fullName") ||
+          !args.hasOwnProperty("email") ||
+          !args.hasOwnProperty("password")
+        ) {
+          throw new Error(errorName.MISSING_FIELD_ERROR);
+        } else if (!patternHelper.isEmailPatternValid(args.email)) {
+          throw new Error(errorName.EMAIL_FORMAT_ERROR);
+        } else if (!patternHelper.isPasswordPatternValid(args.password)) {
+          throw new Error(errorName.PASSWORD_FORMAT_ERROR);
+        } else {
+          return new Promise(async (resolve, reject) => {
+            let findUser = await userController.findUserByEmail(
+              args.email.toLowerCase()
+            );
+            if (findUser) {
+              throw new Error(errorName.EMAIL_EXIST_ERROR);
+            } else {
+              let password = crypto.hashSync(args.password, saltRounds);
+              let createUserObj = {
+                email: args.email.toLowerCase(),
+                password: password,
+                fullName: args.fullName,
+              };
+
+              let createUser = await userController.insertUser(createUserObj);
+              // if (createUser) {
+              // }
+              resolve(createUser);
+            }
+          });
+        }
+      },
+    },
+
+    //This API is used to login the user
+    loginUser: {
+      type: userType,
+      args: {
+        email: {
+          type: new GraphQLNonNull(GraphQLString),
+        },
+        password: {
+          type: new GraphQLNonNull(GraphQLString),
+        },
+      },
+      resolve(parent, args) {
+        if (!args.hasOwnProperty("email") || !args.hasOwnProperty("password")) {
+          throw new Error(errorName.MISSING_FIELD_ERROR);
+        } else if (!patternHelper.isEmailPatternValid(args.email)) {
+          throw new Error(errorName.EMAIL_FORMAT_ERROR);
+        } else {
+          return new Promise(async (resolve, reject) => {
+            let findUser = await userController.findUserByEmail(
+              args.email.toLowerCase()
+            );
+            let match = await crypto.compare(args.password, findUser.password);
+            if (!match) {
+              reject(new Error(errorName.EMAIL_OR_PASSWORD_INCORRECT));
+            } else {
+              let user = await userController.issueToken(findUser);
+              // console.log("user--->", user);
+              let response = await userController.updateUserDevice(user);
+              // console.log("response--->", response);
+              let getUser = await userController.getUserById(response._id);
+              resolve(getUser);
+            }
+          });
+        }
+      },
+    },
+
+    //This API is used to logout the user
+    logout: {
+      type: userType,
+      args: {
+        deviceId: {
+          type: new GraphQLNonNull(GraphQLString),
+        },
+      },
+      resolve(parent, args, request) {
+        return new Promise((resolve, reject) => {
+          if (request.headers.hasOwnProperty("authorization")) {
+            userController
+              .verifyToken(request.headers["authorization"])
+              .then(function (decoded) {
+                let currentUser = {};
+                currentUser.currentRoleId = decoded.roleId;
+                currentUser.currentEmail = decoded.email;
+                currentUser.currentEmailId = decoded.email;
+                currentUser.currentId = decoded.id;
+                if (!args.hasOwnProperty("deviceId")) {
+                  throw new Error(errorName.MISSING_FIELD_ERROR);
+                } else {
+                  userController
+                    .logout(
+                      request.headers["authorization"],
+                      currentUser.currentId
+                    )
+                    .then(function (response) {
+                      resolve(response);
+                    })
+                    .catch(function (err) {
+                      reject(err);
+                    });
+                }
+              })
+              .catch(function (err) {
+                reject(new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR));
+              });
+          } else {
+            throw new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR);
+          }
+        });
+      },
+    },
+  },
+});
+
+module.exports = Mutation;
