@@ -17,6 +17,7 @@ let userSchema = new mongoose.Schema(
       {
         createdAt: { type: Date, default: Date.now },
         jwtToken: { type: String, default: "" },
+        deviceId: { type: String, default: "" },
       },
     ],
   },

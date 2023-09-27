@@ -45,6 +45,7 @@ const userController = {
           $push: {
             loggedDevices: {
               jwtToken: userData.jwtToken.jwtToken,
+              deviceId: userData.deviceId,
             },
           },
         },
@@ -133,12 +134,12 @@ const userController = {
    */
   removeLoggedDeviceByDeviceId: async (deviceId, userId) => {
     try {
-      let findAdmin = UserModel.findOneAndUpdate(
+      let findUser = UserModel.findOneAndUpdate(
         { _id: userId },
         { $pull: { loggedDevices: { deviceId: deviceId } } },
         { safe: true, multi: true }
       );
-      return findAdmin;
+      return findUser;
     } catch (error) {
       throw error;
     }

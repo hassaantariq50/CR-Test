@@ -14,6 +14,7 @@ exports.errorName = {
   USER_ACCESS_AUTHORIZE_ERROR: "USER_ACCESS_AUTHORIZE_ERROR",
   FORMAT_FIELD_ERROR: "FORMAT_FIELD_ERROR",
   DATA_NOT_FOUND_ERROR: "DATA_NOT_FOUND_ERROR",
+  LOGOUT_SUCCESSFUL: "LOGOUT_SUCCESSFUL",
 };
 
 exports.errorType = {
@@ -61,5 +62,9 @@ exports.errorType = {
   DATA_NOT_FOUND_ERROR: {
     message: "Data not found",
     statusCode: 400,
+  },
+  LOGOUT_SUCCESSFUL: {
+    message: "Logout successfully",
+    statusCode: 200,
   },
 };

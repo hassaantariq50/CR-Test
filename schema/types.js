@@ -22,6 +22,9 @@ const jwtToken = new GraphQLObjectType({
     jwtToken: {
       type: GraphQLString,
     },
+    deviceId: {
+      type: GraphQLString,
+    },
     createdAt: {
       type: GraphQLDateTime,
     },

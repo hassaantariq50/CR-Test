@@ -64,7 +64,7 @@ const Mutation = new GraphQLObjectType({
               args.email.toLowerCase()
             );
             if (findUser) {
-              throw new Error(errorName.EMAIL_EXIST_ERROR);
+              reject(new Error(errorName.EMAIL_EXIST_ERROR));
             } else {
               let password = crypto.hashSync(args.password, saltRounds);
               let createUserObj = {
@@ -93,9 +93,16 @@ const Mutation = new GraphQLObjectType({
         password: {
           type: new GraphQLNonNull(GraphQLString),
         },
+        deviceId: {
+          type: new GraphQLNonNull(GraphQLString),
+        },
       },
       resolve(parent, args) {
-        if (!args.hasOwnProperty("email") || !args.hasOwnProperty("password")) {
+        if (
+          !args.hasOwnProperty("email") ||
+          !args.hasOwnProperty("password") ||
+          !args.hasOwnProperty("deviceId")
+        ) {
           throw new Error(errorName.MISSING_FIELD_ERROR);
         } else if (!patternHelper.isEmailPatternValid(args.email)) {
           throw new Error(errorName.EMAIL_FORMAT_ERROR);
@@ -104,16 +111,25 @@ const Mutation = new GraphQLObjectType({
             let findUser = await userController.findUserByEmail(
               args.email.toLowerCase()
             );
-            let match = await crypto.compare(args.password, findUser.password);
-            if (!match) {
+            if (!findUser) {
               reject(new Error(errorName.EMAIL_OR_PASSWORD_INCORRECT));
             } else {
-              let user = await userController.issueToken(findUser);
-              // console.log("user--->", user);
-              let response = await userController.updateUserDevice(user);
-              // console.log("response--->", response);
-              let getUser = await userController.getUserById(response._id);
-              resolve(getUser);
+              let match = await crypto.compare(
+                args.password,
+                findUser.password
+              );
+              if (!match || !findUser) {
+                reject(new Error(errorName.EMAIL_OR_PASSWORD_INCORRECT));
+              } else {
+                let user = await userController.issueToken(findUser);
+                user = {
+                  ...user._doc,
+                  deviceId: args.deviceId,
+                };
+                let response = await userController.updateUserDevice(user);
+                let getUser = await userController.getUserById(response._id);
+                resolve(getUser);
+              }
             }
           });
         }
@@ -222,7 +238,6 @@ const Mutation = new GraphQLObjectType({
                 liveLink: args.liveLink,
                 status: args.status ? args.status : 1,
               };
-
               let createProject = await projectController.updateProjectById(
                 updateProjectObj
               );
@@ -235,7 +250,7 @@ const Mutation = new GraphQLObjectType({
     },
 
     //This API is used to logout the user
-    logout: {
+    logoutUser: {
       type: userType,
       args: {
         deviceId: {
@@ -244,37 +259,17 @@ const Mutation = new GraphQLObjectType({
       },
       resolve(parent, args, request) {
         return new Promise((resolve, reject) => {
-          if (request.headers.hasOwnProperty("authorization")) {
-            userController
-              .verifyToken(request.headers["authorization"])
-              .then(function (decoded) {
-                let currentUser = {};
-                currentUser.currentRoleId = decoded.roleId;
-                currentUser.currentEmail = decoded.email;
-                currentUser.currentEmailId = decoded.email;
-                currentUser.currentId = decoded.id;
-                if (!args.hasOwnProperty("deviceId")) {
-                  throw new Error(errorName.MISSING_FIELD_ERROR);
-                } else {
-                  userController
-                    .logout(
-                      request.headers["authorization"],
-                      currentUser.currentId
-                    )
-                    .then(function (response) {
-                      resolve(response);
-                    })
-                    .catch(function (err) {
-                      reject(err);
-                    });
-                }
-              })
-              .catch(function (err) {
-                reject(new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR));
-              });
-          } else {
-            throw new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR);
-          }
+          verifyToken(request).then(async (res) => {
+            if (res.error) {
+              reject(new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR));
+            } else {
+              await userController.removeLoggedDeviceByDeviceId(
+                args.deviceId,
+                res.data._id
+              );
+              resolve(errorName.LOGOUT_SUCCESSFUL);
+            }
+          });
         });
       },
     },
