@@ -1,0 +1,16 @@
+export const userCookie = {
+  TOKEN: "token",
+};
+
+export const USER = {
+  LOGIN: "LOGIN_AS_USER",
+  LOGOUT: "LOGOUT_USER",
+  UPDATE: "UPDATE_USER_INFO",
+};
+
+export const ALL_PACKAGES = {
+  STORE: "STORE_PACKAGES_DATA_IN_REDUCER",
+  CHANGE_STATUS: "CHANGE_PACKAGES_STATUS",
+  ADD_NEW: "ADD_NEW_PACKAGES",
+  EDIT_DATA: "EDIT_PACKAGES_DATA",
+};
