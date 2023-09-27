@@ -33,16 +33,29 @@ const RootQuery = new GraphQLObjectType({
     //This API is used to get all my projects
     getAllProjects: {
       type: new GraphQLList(projectType),
+      args: {
+        status: {
+          type: GraphQLFloat,
+        },
+      },
       resolve(parent, args, request) {
         return new Promise((resolve, reject) => {
           verifyToken(request).then(async (res) => {
             if (res.error) {
               reject(new Error(errorName.USER_ACCESS_AUTHORIZE_ERROR));
             } else {
-              let getMyProjects = await projectController.getProjectByUserId(
-                res.data._id
-              );
-              resolve(getMyProjects);
+              if (args.status == 1) {
+                let getMyProjects = await projectController.getProjectByUserId(
+                  res.data._id
+                );
+                resolve(getMyProjects);
+              } else {
+                let getMyProjects = await projectController.getProjectByStatus(
+                  res.data._id,
+                  args.status
+                );
+                resolve(getMyProjects);
+              }
             }
           });
         });

@@ -31,6 +31,20 @@ const projectController = {
   },
 
   /**
+   * getProjectByStatus - get project detail by userId.
+   * @param userId - user that need to be check.
+   * @returns {Promise<void>}
+   */
+  getProjectByStatus: async (userId, status) => {
+    try {
+      let project = await ProjectModel.find({ userId: userId, status: status });
+      return project;
+    } catch (error) {
+      return error;
+    }
+  },
+
+  /**
    * updateProjectById - update project by its ID.
    * @param _id - _id that need to check
    * @returns {Promise<void>}
