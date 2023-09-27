@@ -96,8 +96,11 @@ const SidebarWrapper = ({ collapsed, toggleCollapsed }) => {
   });
 
   const handleLogout = async () => {
+    let variables = {
+      deviceId: deviceId,
+    };
     try {
-      await logoutUser({ deviceId });
+      await logoutUser({ variables });
     } catch (err) {
       message.error(errorHandler(err));
     } finally {

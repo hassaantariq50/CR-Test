@@ -6,8 +6,7 @@ const initialState = {
     Cookies.get("token") !== null &&
     Cookies.get("token") !== undefined &&
     Cookies.get("token") !== "",
-  userRole: 0, // 1 = user, 2 = company, 3 = guide
-  data: { userRole: 0, firstName: "", lastName: "", phoneNo: "", email: "" },
+  data: {},
 };
 
 const userReducer = (state = initialState, action) => {
@@ -18,11 +17,10 @@ const userReducer = (state = initialState, action) => {
     }
 
     case USER.LOGOUT: {
-      window.location.replace("/");
+      // window.location.replace("/");
       return {
         isLoggedIn: false,
-        userRole: "",
-        data: { userRole: 0, firstName: "", lastName: "", phoneNo: "", email: "" },
+        data: {},
       };
     }
 

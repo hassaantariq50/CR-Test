@@ -47,12 +47,19 @@ const ContentHeader = (props) => {
           </div>
         </Col>
 
-        <Col>
+        <Col
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center" }}>
             {showSearch ? (
               <InputWrapper
+                style={{ width: 300 }}
                 prefix={<SearchOutlined />}
-                placeholder="Search"
+                placeholder="Search by Project Title or Tech Stack"
                 onChange={onSearch}
               />
             ) : null}

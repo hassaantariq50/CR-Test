@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ContentHeader from "components/header/contentHeader";
 import { Skeleton } from "antd";
 import styledComponents from "styled-components";
+import { useHistory } from "react-router-dom";
 
 const StyledDiv = styledComponents.div`
 .white-background{
@@ -35,15 +36,37 @@ const StyledDiv = styledComponents.div`
 }
 `;
 
-const Dashboard = (props) => {
+const Dashboard = () => {
+  const history = useHistory();
   return (
     <StyledDiv>
       <ContentHeader title="Dashboard" />
 
       <div className="white-background">
-        <div className="cards">All Projects</div>
-        <div className="cards">Archived Projects</div>
-        <div className="cards">Completed Projects</div>
+        <div
+          onClick={() => {
+            history.push("/dashboard/projects/all");
+          }}
+          className="cards"
+        >
+          All Projects
+        </div>
+        <div
+          onClick={() => {
+            history.push("/dashboard/projects/archived");
+          }}
+          className="cards"
+        >
+          Archived Projects
+        </div>
+        <div
+          onClick={() => {
+            history.push("/dashboard/projects/completed");
+          }}
+          className="cards"
+        >
+          Completed Projects
+        </div>
       </div>
     </StyledDiv>
   );

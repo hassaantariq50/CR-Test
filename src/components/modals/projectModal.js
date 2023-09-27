@@ -10,7 +10,7 @@ import styled from "styled-components";
 import { BsPlusSquare } from "react-icons/bs";
 import { MdOutlineCancel } from "react-icons/md";
 import { HiCheck, HiX } from "react-icons/hi";
-import { ALL_PACKAGES } from "redux/constants";
+import { ALL_PACKAGES, ALL_PROJECTS } from "redux/constants";
 import ImageUploader from "components/uploader/ImageUploader";
 
 import BannerImageUploader from "components/uploader/BannerImageUploader";
@@ -107,8 +107,7 @@ const ProjectModal = (props) => {
     /**
      * Set all feilds value if editing
      */
-    console.log("mode--->", mode);
-    if (mode?.current == "view" && visible) {
+    if ((mode?.current == "view" || mode?.current == "edit") && visible) {
       setState(currentProject);
       setFileList([{ url: currentProject.image, id: 1 }]);
       form.setFieldsValue({
@@ -126,12 +125,11 @@ const ProjectModal = (props) => {
   /**
    * Muatation and handler for adding new Project
    */
-
   const [addNewProject, { loading: isLoading }] = useMutation(Mutations.ADD_PROJECT, {
     client: userClient,
   });
 
-  const handleAddNewPackage = async () => {
+  const handleAddProject = async () => {
     let variables = {
       projectTitle: state.projectTitle,
       description: state.description,
@@ -141,35 +139,40 @@ const ProjectModal = (props) => {
       techStack: state.techStack,
     };
     try {
-      let getResponse = await addNewProject({ variables });
-      // dispatch({ type: ALL_PACKAGES.ADD_NEW, payload: getResponse.data.data });
-      // props.getCouponData();
+      const { data } = await addNewProject({ variables });
+      dispatch({ type: ALL_PROJECTS.ADD_NEW, payload: data.addProject });
       closeModal();
     } catch (err) {
       message.error(errorHandler(err));
     }
   };
 
-  const handleViewPackage = async () => {
-    // try {
-    //   await updatePackageMutation({
-    //     variables: {
-    //       packageId: currentProject._id,
-    //       packageType: state.packageType,
-    //       orderType: state.orderType,
-    //       description: state.description,
-    //       rushDeliveryCharges: state.rushDeliveryCharges,
-    //       originalPrice: state.originalPrice,
-    //       price: state.price,
-    //       discount: `${Math.floor(100 - (state.price * 100) / state.originalPrice)}`,
-    //       slug: state.slug,
-    //     },
-    //   });
-    //   window.location.reload();
-    //   closeModal();
-    // } catch (err) {
-    //   message.error(errorHandler(err));
-    // }
+  /**
+   * Muatation and handler for editing existing Project
+   */
+  const [editProject, { loading: editLoading }] = useMutation(Mutations.UPDATE_PROJECT, {
+    client: userClient,
+  });
+
+  const handleEditProject = async () => {
+    let variables = {
+      projectId: currentProject._id,
+      projectTitle: state.projectTitle,
+      description: state.description,
+      imageUrl: fileList[0]?.url,
+      githubLink: state.githubLink,
+      liveLink: state.liveLink,
+      techStack: state.techStack,
+      status: currentProject.status,
+    };
+    try {
+      const { data } = await editProject({ variables });
+      dispatch({ type: ALL_PROJECTS.EDIT_DATA, payload: data.updateProject });
+      message.success("Updated Successfully");
+      closeModal();
+    } catch (err) {
+      message.error(errorHandler(err));
+    }
   };
 
   const handleChange = (e) => {
@@ -191,7 +194,13 @@ const ProjectModal = (props) => {
 
   return (
     <Modal
-      title={mode?.current == "view" ? "Project Details" : "Add Project"}
+      title={
+        mode?.current == "view"
+          ? "Project Details"
+          : mode?.current == "edit"
+          ? "Edit Project Details"
+          : "Add Project"
+      }
       visible={visible}
       onCancel={closeModal}
       footer={null}
@@ -200,7 +209,13 @@ const ProjectModal = (props) => {
       <StyledContent>
         <Form
           form={form}
-          onFinish={mode?.current == "view" ? handleViewPackage : handleAddNewPackage}
+          onFinish={
+            mode?.current == "add"
+              ? handleAddProject
+              : mode?.current == "edit"
+              ? handleEditProject
+              : null
+          }
           // validateTrigger="onFinish"
         >
           <Row justify="space-between" gutter={[24, 12]}>
@@ -291,16 +306,6 @@ const ProjectModal = (props) => {
                     <div key={index} className="description">
                       {item}
                     </div>
-                    {/* <div
-                      title="Remove"
-                      onClick={() => {
-                        const i = state.description.indexOf(item);
-                        console.log("Index", i);
-                        state.description.splice(i, 1);
-                        setState({ ...state });
-                      }}
-                      className="delete-description"
-                    > */}
                     <HiX
                       className="delete-description"
                       title="Remove"
@@ -311,10 +316,9 @@ const ProjectModal = (props) => {
                         setState({ ...state });
                       }}
                       style={{
-                        display: mode.current == "View Package" ? "none" : "flex",
+                        display: mode.current == "view" ? "none" : "flex",
                       }}
                     />
-                    {/* </div> */}
                   </div>
                 ))}
               </div>
@@ -356,7 +360,6 @@ const ProjectModal = (props) => {
                     if (e.target.value !== "") {
                       e.preventDefault();
                       state.packageIncludes.push(e.target.value);
-                      console.log("state---->", state);
                       setState({ ...state });
                       descriptionRef.current.scrollTo({
                         top: (state.packageIncludes.length + 1) * 48,
@@ -404,9 +407,13 @@ const ProjectModal = (props) => {
                 style={{ outline: "none", border: "none", backgroundColor: "#ffbe04" }}
                 htmlType="submit"
                 onClick={onOk}
-                loading={isLoading}
+                loading={isLoading || editLoading}
               >
-                Create
+                {mode?.current == "add"
+                  ? "Create"
+                  : mode?.current == "edit"
+                  ? "Save"
+                  : null}
               </Button>
             </Col>
           </Row>

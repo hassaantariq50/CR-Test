@@ -73,6 +73,39 @@ const Mutations = {
     }
   `,
 
+  UPDATE_PROJECT: gql`
+    mutation project(
+      $projectId: String
+      $projectTitle: String
+      $description: String
+      $imageUrl: String
+      $techStack: [String]
+      $githubLink: String
+      $liveLink: String
+      $status: Float
+    ) {
+      updateProject(
+        projectId: $projectId
+        projectTitle: $projectTitle
+        description: $description
+        imageUrl: $imageUrl
+        techStack: $techStack
+        githubLink: $githubLink
+        liveLink: $liveLink
+        status: $status
+      ) {
+        _id
+        projectTitle
+        description
+        imageUrl
+        techStack
+        githubLink
+        liveLink
+        status
+      }
+    }
+  `,
+
   LOGOUT: gql`
     mutation logout($deviceId: String!) {
       logoutUser(deviceId: $deviceId) {
