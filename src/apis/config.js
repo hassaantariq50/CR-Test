@@ -20,7 +20,7 @@ import { userCookie } from "../redux/constants";
 
 const authLink = setContext((_, { headers }) => {
   //----------------------------------------//
-  //          Decrypting user token         //
+  //    Getting User token from Cookies     //
   //----------------------------------------//
   const token = Cookies.get(userCookie.TOKEN);
   return {

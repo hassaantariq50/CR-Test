@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { InputWrapper } from "components/input";
 import BannerImage from "images/loginTopImage.svg";
 import { Form, message, Row, Col } from "antd";
 import { ArrowRightOutlined, LoadingOutlined, LockFilled } from "@ant-design/icons";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { loginAction } from "redux/actions";
+import { loginAction, logoutAction } from "redux/actions";
 import styled from "styled-components";
 import { ButtonWrapper } from "components/buttons";
 // import { useMutation, errorHandler, Mutations } from "apis/config";
@@ -79,6 +79,10 @@ const LoginNew = () => {
   const history = useHistory();
 
   const [state, setState] = useState({ email: "", password: "" });
+
+  useEffect(() => {
+    dispatch(logoutAction());
+  }, []);
 
   /**
    * Muatation and handler for Register Account

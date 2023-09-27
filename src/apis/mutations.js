@@ -1,25 +1,3 @@
-// import { userModule } from "./config";
-// import Cookies from "js-cookie";
-
-// export const Mutations = {
-//   registerAccount: (body) => {
-//     return userModule.post("/register", body);
-//   },
-//   login: (body) => {
-//     return userModule.post("/login", body);
-//   },
-//   logout: (body) => {
-//     const headers = { Authorization: Cookies.get("token") };
-//     return userModule.post("/logout", body, { headers });
-//   },
-//   forgotPassword: (body) => {
-//     return userModule.post("/forgetPassword", body);
-//   },
-//   resetPassword: (body) => {
-//     return userModule.post("/changePasswordAfterForget", body);
-//   },
-// };
-
 import gql from "graphql-tag";
 
 const Mutations = {

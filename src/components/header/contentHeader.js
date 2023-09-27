@@ -84,8 +84,8 @@ const ContentHeader = (props) => {
             ) : null}
           </div>
 
-          <div style={{ width: 50 }}>
-            {onAdd ? (
+          {onAdd ? (
+            <div style={{ width: 50 }}>
               <Tooltip title={props.tooltip ? props.tooltip : "Add new"}>
                 <IoIosAddCircleOutline
                   onClick={onAdd}
@@ -98,8 +98,8 @@ const ContentHeader = (props) => {
                   }}
                 />
               </Tooltip>
-            ) : null}
-          </div>
+            </div>
+          ) : null}
         </Col>
       </Row>
     </StyledContent>

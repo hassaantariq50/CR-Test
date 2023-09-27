@@ -24,17 +24,8 @@ const Routes = (props) => {
   }, [isLoggedIn, updateUser]);
 
   const renderView = () => {
-    // 1 = user, 2 = company, 3 = guide
     if (isLoggedIn) {
-      // if (userRole === 1) {
       return <UserShell />;
-      //   } else if (userRole === 2) {
-      //     return <CompanyShell />;
-      //   } else if (userRole === 3) {
-      //     return <GuideShell />;
-      //   } else {
-      //     return <div />;
-      //   }
     } else {
       return <Login />;
     }

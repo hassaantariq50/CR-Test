@@ -1,29 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-// import { message, Modal } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-// import { USER } from "redux/constants";
-// import { useMutation, errorHandler, Queries, Mutations } from "apis/config";
 import TableWrapper from "components/table/reactTable";
 import ContentHeader from "components/header/contentHeader";
-import { ButtonWrapper, TableButton } from "components/buttons";
 import styled from "styled-components";
-// import { CgTrash } from "react-icons/cg";
-// import { ExclamationCircleOutlined } from "@ant-design/icons";
-
-// import RegistrationDetailModal from "components/modals/registrationDetailModal";
-import { useLazyQuery, useQuery } from "react-apollo";
-import { useMutation } from "@apollo/react-hooks";
+import { useQuery } from "react-apollo";
 import Queries from "apis/queries";
-import Mutations from "apis/mutations";
-import { userClient } from "apis/config";
-import { errorHandler } from "helpers/errorHandler";
 import { message } from "antd";
 import moment from "moment";
 import ProjectModal from "components/modals/projectModal";
 import { ALL_PROJECTS } from "redux/constants";
-import { AiOutlineEdit, AiOutlineEye } from "react-icons/ai";
-import { BiArchiveIn } from "react-icons/bi";
-import { MdOutlineDone } from "react-icons/md";
+import { AiOutlineEye } from "react-icons/ai";
 
 const StyledTable = styled.div`
   .action-btn {
@@ -43,12 +29,12 @@ const StyledTable = styled.div`
   }
 `;
 
-const Projects = () => {
+const ArchivedProjects = () => {
   const dispatch = useDispatch();
   const { allProjects } = useSelector((state) => state.allProjects);
 
   const projectsRef = useRef();
-  const mode = useRef("add");
+  const mode = useRef("view");
 
   const [projectModal, setProjectModal] = useState(false);
   const [allPendingProjects, setPendingProjects] = useState([]);
@@ -59,7 +45,7 @@ const Projects = () => {
     error,
   } = useQuery(Queries.GET_ALL_PROJECTS, {
     variables: {
-      status: 1,
+      status: 2,
     },
     onError: () => {
       message.error(error.message);
@@ -70,49 +56,24 @@ const Projects = () => {
     fetchPolicy: "network-only",
   });
 
-  /**
-   * Muatation and handler for edditing existing Project
-   */
-  const [editProject, { loading: editLoading }] = useMutation(Mutations.UPDATE_PROJECT, {
-    client: userClient,
-  });
-
-  const handleEditProject = async (status) => {
-    let variables = {
-      ...projectsRef.current,
-      projectId: projectsRef.current._id,
-      status: status,
-    };
-    console.log("variables", variables);
-    try {
-      const { data } = await editProject({ variables });
-      dispatch({ type: ALL_PROJECTS.CHANGE_STATUS, payload: data.updateProject });
-      message.success(
-        `${projectsRef.current.projectTitle} added to ${
-          status == 2 ? "Archived" : "Completed"
-        } successfully`
-      );
-    } catch (err) {
-      message.error(errorHandler(err));
-    }
-  };
-
   useEffect(() => {
     console.log("all project", allProjects);
-    // let filteredData = allProjects.filter((x) => x.status == 1);
-    setPendingProjects(allProjects);
-  }, [allProjects, editLoading, projectModal]);
+    let filteredData = allProjects.filter((x) => x.status == 2);
+    setPendingProjects(filteredData);
+  }, [allProjects, projectModal]);
 
   const handleSearch = (val) => {
     if (val.target.value == "") {
-      // let filteredData = allProjects.filter((x) => x.status == 1);
-      setPendingProjects(allProjects);
+      let filteredData = allProjects.filter((x) => x.status == 2);
+      setPendingProjects(filteredData);
     } else {
       let filteredData = allProjects.filter((option) => {
-        return (
-          option.projectTitle.toLowerCase().includes(val.target.value.toLowerCase()) ||
-          option.techStack.join().toLowerCase().includes(val.target.value.toLowerCase())
-        );
+        if (option.status == 2) {
+          return (
+            option.projectTitle.toLowerCase().includes(val.target.value.toLowerCase()) ||
+            option.techStack.join().toLowerCase().includes(val.target.value.toLowerCase())
+          );
+        }
       });
       setPendingProjects(filteredData);
     }
@@ -128,21 +89,16 @@ const Projects = () => {
       />
       <div>
         <ContentHeader
-          onAdd={() => {
-            setProjectModal(true);
-            mode.current = "add";
-          }}
           showSearch={true}
           onSearch={(e) => {
             handleSearch(e);
           }}
-          title="All Projects"
+          title="Archived Projects"
         />
         <TableWrapper
           tableData={allPendingProjects}
           loading={isLoading}
           showPagination={true}
-          totalCount={allPendingProjects.length}
           columns={[
             {
               Header: "Project Title",
@@ -182,7 +138,7 @@ const Projects = () => {
               Header: "Action",
               Cell: ({ original }) => {
                 return (
-                  <div style={{ display: "flex" }}>
+                  <div>
                     <div
                       onClick={() => {
                         mode.current = "view";
@@ -193,40 +149,6 @@ const Projects = () => {
                       className="action-btn"
                     >
                       <AiOutlineEye style={{ fontSize: 16, color: "blue" }} />
-                    </div>
-
-                    <div
-                      onClick={() => {
-                        mode.current = "edit";
-                        projectsRef.current = original;
-                        setProjectModal(true);
-                      }}
-                      title="Edit"
-                      className="action-btn"
-                    >
-                      <AiOutlineEdit style={{ fontSize: 16, color: "blue" }} />
-                    </div>
-
-                    <div
-                      onClick={() => {
-                        projectsRef.current = original;
-                        handleEditProject(2);
-                      }}
-                      title="Archive"
-                      className="action-btn"
-                    >
-                      <BiArchiveIn style={{ fontSize: 16, color: "blue" }} />
-                    </div>
-
-                    <div
-                      onClick={() => {
-                        projectsRef.current = original;
-                        handleEditProject(3);
-                      }}
-                      title="Complete"
-                      className="action-btn"
-                    >
-                      <MdOutlineDone style={{ fontSize: 16, color: "blue" }} />
                     </div>
                   </div>
                 );
@@ -240,4 +162,4 @@ const Projects = () => {
   );
 };
 
-export default Projects;
+export default ArchivedProjects;

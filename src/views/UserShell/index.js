@@ -10,6 +10,7 @@ import SidebarWrapper from "components/sidebar/sidebarWrapper";
  */
 import Dashboard from "./Dashboard";
 import Projects from "./AllProjects";
+import ArchivedProjects from "./ArchivedProjects";
 
 const { Content } = Layout;
 
@@ -37,6 +38,16 @@ const UserShell = () => {
                 <Switch>
                   <Route exact path="/dashboard" component={Dashboard} />
                   <Route exact path="/dashboard/projects/all" component={Projects} />
+                  <Route
+                    exact
+                    path="/dashboard/projects/archived"
+                    component={ArchivedProjects}
+                  />
+                  <Route
+                    exact
+                    path="/dashboard/projects/completed"
+                    component={ArchivedProjects}
+                  />
 
                   {/* <Route exact path="/download" component={Download} />
                   <Route exact path="/profile" component={Profile} />
