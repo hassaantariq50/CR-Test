@@ -95,7 +95,6 @@ const ProjectModal = (props) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const descriptionRef = useRef();
-  const { data } = useSelector((state) => state.user);
 
   const [state, setState] = useState({ ...initialState });
   const [newDescription, setNewDescription] = useState("");
