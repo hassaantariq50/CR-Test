@@ -1,7 +1,8 @@
 # CR-Test
 This repo is for concept recall's MERN test
 
-# Node Version 16.20.1
+## Node Version 16.20.1
+## mongoDB version 4.4
 
 # Frontend
 yarn
@@ -13,4 +14,4 @@ npm i
 npm i nodemon
 npm start
 
-# mongoDB version 4.4
+
