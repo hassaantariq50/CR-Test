@@ -176,6 +176,7 @@ const Mutation = new GraphQLObjectType({
                 techStack: args.techStack,
                 githubLink: args.githubLink,
                 liveLink: args.liveLink,
+                createdAt: args.createdAt,
                 status: 1,
               };
 
