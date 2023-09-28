@@ -4,7 +4,6 @@ import styled from "styled-components";
 import SelectWrapper from "../input/selectWrapper";
 import { InputWrapper } from "../input";
 import { SearchOutlined } from "@ant-design/icons";
-import RangePickerWrapper from "components/input/rangePicker";
 import { IoIosAddCircleOutline } from "react-icons/io";
 
 const StyledContent = styled.section`
@@ -29,8 +28,17 @@ const StyledContent = styled.section`
   }
 `;
 const ContentHeader = (props) => {
-  const { title, count, onSearch, showRangeSelect, onSelectChange, showSearch, onAdd } =
-    props;
+  const {
+    title,
+    count,
+    onSearch,
+    showRangeSelect,
+    onSelectChange,
+    showSearch,
+    onAdd,
+    dropDownOptions,
+    width,
+  } = props;
 
   return (
     <StyledContent>
@@ -65,20 +73,14 @@ const ContentHeader = (props) => {
             ) : null}
 
             <div style={{ width: 32 }} />
-            {showRangeSelect ? (
-              <RangePickerWrapper style={{ height: 40, borderColor: "#d1d1d1" }} />
-            ) : null}
             <div style={{ width: 32 }} />
 
             {onSelectChange ? (
               <SelectWrapper
-                size="large"
+                width={width}
+                // size="large"
                 defaultValue="View All"
-                options={[
-                  { label: "View All", value: "all" },
-                  { label: "Active", value: "active" },
-                  { label: "Inactive", value: "inactive" },
-                ]}
+                options={dropDownOptions}
                 onChange={onSelectChange}
               />
             ) : null}

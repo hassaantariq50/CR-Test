@@ -5,6 +5,7 @@ import styled from "styled-components";
 const StyledSelect = styled(Select)`
   display: block;
   min-width: 150px;
+  width: ${(props) => (props.width ? props.width : 250)}px;
   text-align: left;
 
   .ant-select,

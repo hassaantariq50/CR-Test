@@ -29,7 +29,7 @@ const StyledTable = styled.div`
   }
 `;
 
-const ArchivedProjects = () => {
+const CompletedProjects = () => {
   const dispatch = useDispatch();
   const { allProjects } = useSelector((state) => state.allProjects);
 
@@ -45,7 +45,7 @@ const ArchivedProjects = () => {
     error,
   } = useQuery(Queries.GET_ALL_PROJECTS, {
     variables: {
-      status: 2,
+      status: 3,
     },
     onError: () => {
       message.error(error.message);
@@ -58,17 +58,17 @@ const ArchivedProjects = () => {
 
   useEffect(() => {
     console.log("all project", allProjects);
-    let filteredData = allProjects.filter((x) => x.status == 2);
+    let filteredData = allProjects.filter((x) => x.status == 3);
     setPendingProjects(filteredData);
   }, [allProjects, projectModal]);
 
   const handleSearch = (val) => {
     if (val.target.value == "") {
-      let filteredData = allProjects.filter((x) => x.status == 2);
+      let filteredData = allProjects.filter((x) => x.status == 3);
       setPendingProjects(filteredData);
     } else {
       let filteredData = allProjects.filter((option) => {
-        if (option.status == 2) {
+        if (option.status == 3) {
           return (
             option.projectTitle.toLowerCase().includes(val.target.value.toLowerCase()) ||
             option.techStack.join().toLowerCase().includes(val.target.value.toLowerCase())
@@ -156,7 +156,7 @@ const ArchivedProjects = () => {
           onSearch={(e) => {
             handleSearch(e);
           }}
-          title="Archived Projects"
+          title="Completed Projects"
           onSelectChange={(e) => handleFilter(e)}
           dropDownOptions={[
             { label: "Alphabetical Order (A-Z)", value: 1 },
@@ -233,4 +233,4 @@ const ArchivedProjects = () => {
   );
 };
 
-export default ArchivedProjects;
+export default CompletedProjects;

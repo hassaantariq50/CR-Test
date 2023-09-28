@@ -1,16 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-// import { message, Modal } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-// import { USER } from "redux/constants";
-// import { useMutation, errorHandler, Queries, Mutations } from "apis/config";
 import TableWrapper from "components/table/reactTable";
 import ContentHeader from "components/header/contentHeader";
-import { ButtonWrapper, TableButton } from "components/buttons";
 import styled from "styled-components";
-// import { CgTrash } from "react-icons/cg";
-// import { ExclamationCircleOutlined } from "@ant-design/icons";
-
-// import RegistrationDetailModal from "components/modals/registrationDetailModal";
 import { useLazyQuery, useQuery } from "react-apollo";
 import { useMutation } from "@apollo/react-hooks";
 import Queries from "apis/queries";
@@ -52,6 +44,7 @@ const Projects = () => {
 
   const [projectModal, setProjectModal] = useState(false);
   const [allPendingProjects, setPendingProjects] = useState([]);
+  // const [filterByStatus, setFilterByStatus] = useState(0);
 
   const {
     data,
@@ -101,7 +94,7 @@ const Projects = () => {
     console.log("all project", allProjects);
     // let filteredData = allProjects.filter((x) => x.status == 1);
     setPendingProjects(allProjects);
-  }, [allProjects, editLoading, projectModal]);
+  }, [allProjects]);
 
   const handleSearch = (val) => {
     if (val.target.value == "") {
@@ -115,6 +108,69 @@ const Projects = () => {
         );
       });
       setPendingProjects(filteredData);
+    }
+  };
+
+  const handleFilter = (val) => {
+    if (val === 1) {
+      // Create a new array for sorting
+      const sortedData = [...allPendingProjects].sort((a, b) => {
+        const titleA = a.projectTitle.toLowerCase();
+        const titleB = b.projectTitle.toLowerCase();
+
+        if (titleA < titleB) {
+          return -1;
+        }
+        if (titleA > titleB) {
+          return 1;
+        }
+        return 0;
+      });
+
+      // Update the state with the sorted data
+      setPendingProjects(sortedData);
+    } else if (val === 2) {
+      // Create a new array for sorting
+      const sortedData = [...allPendingProjects].sort((a, b) => {
+        const titleA = a.projectTitle.toLowerCase();
+        const titleB = b.projectTitle.toLowerCase();
+
+        if (titleA > titleB) {
+          return -1;
+        }
+        if (titleA < titleB) {
+          return 1;
+        }
+        return 0;
+      });
+
+      // Update the state with the sorted data
+      setPendingProjects(sortedData);
+    } else if (val === 3) {
+      console.log("val 3");
+      // Create a new array for sorting
+      const sortedData = [...allPendingProjects].sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+
+        return dateB - dateA;
+      });
+
+      // Update the state with the sorted data
+      setPendingProjects(sortedData);
+    } else if (val === 4) {
+      console.log("val 4");
+
+      // Sort by createdAt (oldest to newest)
+      const sortedData = [...allPendingProjects].sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+
+        return dateA - dateB;
+      });
+
+      // Update the state with the sorted data
+      setPendingProjects(sortedData);
     }
   };
 
@@ -137,6 +193,13 @@ const Projects = () => {
             handleSearch(e);
           }}
           title="All Projects"
+          onSelectChange={(e) => handleFilter(e)}
+          dropDownOptions={[
+            { label: "Alphabetical Order (A-Z)", value: 1 },
+            { label: "Reverse alphabetical Order (Z-A)", value: 2 },
+            { label: "Newest to Oldest", value: 3 },
+            { label: "Oldest to Newest", value: 4 },
+          ]}
         />
         <TableWrapper
           tableData={allPendingProjects}
@@ -181,55 +244,101 @@ const Projects = () => {
             {
               Header: "Action",
               Cell: ({ original }) => {
-                return (
-                  <div style={{ display: "flex" }}>
-                    <div
-                      onClick={() => {
-                        mode.current = "view";
-                        projectsRef.current = original;
-                        setProjectModal(true);
-                      }}
-                      title="View Details"
-                      className="action-btn"
-                    >
-                      <AiOutlineEye style={{ fontSize: 16, color: "blue" }} />
-                    </div>
+                if (original.status == 1) {
+                  return (
+                    <div style={{ display: "flex" }}>
+                      <div
+                        onClick={() => {
+                          mode.current = "view";
+                          projectsRef.current = original;
+                          setProjectModal(true);
+                        }}
+                        title="View Details"
+                        className="action-btn"
+                      >
+                        <AiOutlineEye style={{ fontSize: 16, color: "blue" }} />
+                      </div>
 
-                    <div
-                      onClick={() => {
-                        mode.current = "edit";
-                        projectsRef.current = original;
-                        setProjectModal(true);
-                      }}
-                      title="Edit"
-                      className="action-btn"
-                    >
-                      <AiOutlineEdit style={{ fontSize: 16, color: "blue" }} />
-                    </div>
+                      <div
+                        onClick={() => {
+                          mode.current = "edit";
+                          projectsRef.current = original;
+                          setProjectModal(true);
+                        }}
+                        title="Edit"
+                        className="action-btn"
+                      >
+                        <AiOutlineEdit style={{ fontSize: 16, color: "blue" }} />
+                      </div>
 
-                    <div
-                      onClick={() => {
-                        projectsRef.current = original;
-                        handleEditProject(2);
-                      }}
-                      title="Archive"
-                      className="action-btn"
-                    >
-                      <BiArchiveIn style={{ fontSize: 16, color: "blue" }} />
-                    </div>
+                      <div
+                        onClick={() => {
+                          projectsRef.current = original;
+                          handleEditProject(2);
+                        }}
+                        title="Archive"
+                        className="action-btn"
+                      >
+                        <BiArchiveIn style={{ fontSize: 16, color: "blue" }} />
+                      </div>
 
-                    <div
-                      onClick={() => {
-                        projectsRef.current = original;
-                        handleEditProject(3);
-                      }}
-                      title="Complete"
-                      className="action-btn"
-                    >
-                      <MdOutlineDone style={{ fontSize: 16, color: "blue" }} />
+                      <div
+                        onClick={() => {
+                          projectsRef.current = original;
+                          handleEditProject(3);
+                        }}
+                        title="Complete"
+                        className="action-btn"
+                      >
+                        <MdOutlineDone style={{ fontSize: 16, color: "blue" }} />
+                      </div>
                     </div>
-                  </div>
-                );
+                  );
+                } else if (original.status == 2) {
+                  return (
+                    <div style={{ display: "flex" }}>
+                      <div
+                        onClick={() => {
+                          mode.current = "view";
+                          projectsRef.current = original;
+                          setProjectModal(true);
+                        }}
+                        title="View Details"
+                        className="action-btn"
+                      >
+                        <AiOutlineEye style={{ fontSize: 16, color: "blue" }} />
+                      </div>
+
+                      <div
+                        onClick={() => {
+                          mode.current = "edit";
+                          projectsRef.current = original;
+                          setProjectModal(true);
+                        }}
+                        title="Edit"
+                        className="action-btn"
+                      >
+                        <AiOutlineEdit style={{ fontSize: 16, color: "blue" }} />
+                      </div>
+                    </div>
+                  );
+                } else if (original.status == 3) {
+                  return (
+                    <div style={{ display: "flex" }}>
+                      <div
+                        onClick={() => {
+                          mode.current = "view";
+                          projectsRef.current = original;
+                          setProjectModal(true);
+                        }}
+                        title="View Details"
+                        className="action-btn"
+                      >
+                        <AiOutlineEye style={{ fontSize: 16, color: "blue" }} />
+                      </div>
+                    </div>
+                  );
+                }
               },
               sortable: false,
             },

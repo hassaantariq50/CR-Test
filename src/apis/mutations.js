@@ -31,6 +31,7 @@ const Mutations = {
       $techStack: [String]
       $githubLink: String
       $liveLink: String
+      $createdAt: DateTime
     ) {
       addProject(
         projectTitle: $projectTitle
@@ -39,6 +40,7 @@ const Mutations = {
         techStack: $techStack
         githubLink: $githubLink
         liveLink: $liveLink
+        createdAt: $createdAt
       ) {
         _id
         projectTitle
@@ -47,6 +49,8 @@ const Mutations = {
         techStack
         githubLink
         liveLink
+        status
+        createdAt
       }
     }
   `,
@@ -80,6 +84,7 @@ const Mutations = {
         githubLink
         liveLink
         status
+        createdAt
       }
     }
   `,

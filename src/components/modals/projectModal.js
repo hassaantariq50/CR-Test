@@ -5,15 +5,13 @@ import { useMutation } from "@apollo/react-hooks";
 import Mutations from "../../apis/mutations";
 import { userClient } from "../../apis/config";
 import { errorHandler } from "../../helpers/errorHandler";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { BsPlusSquare } from "react-icons/bs";
-import { MdOutlineCancel } from "react-icons/md";
-import { HiCheck, HiX } from "react-icons/hi";
-import { ALL_PACKAGES, ALL_PROJECTS } from "redux/constants";
-import ImageUploader from "components/uploader/ImageUploader";
+import { HiX } from "react-icons/hi";
+import { ALL_PROJECTS } from "redux/constants";
 
 import BannerImageUploader from "components/uploader/BannerImageUploader";
+import moment from "moment";
 
 const StyledContent = styled.div`
   .numeric-formatt {
@@ -108,7 +106,7 @@ const ProjectModal = (props) => {
      */
     if ((mode?.current == "view" || mode?.current == "edit") && visible) {
       setState(currentProject);
-      setFileList([{ url: currentProject.image, id: 1 }]);
+      setFileList([{ url: currentProject.imageUrl, id: 1 }]);
       form.setFieldsValue({
         "Project Title": currentProject.projectTitle,
         "Project Description": currentProject.description,
@@ -136,6 +134,7 @@ const ProjectModal = (props) => {
       githubLink: state.githubLink,
       liveLink: state.liveLink,
       techStack: state.techStack,
+      createdAt: new Date(moment().format("YYYY-MM-DD HH:mm:ss")),
     };
     try {
       const { data } = await addNewProject({ variables });
@@ -219,7 +218,7 @@ const ProjectModal = (props) => {
         >
           <Row justify="space-between" gutter={[24, 12]}>
             <Col span={24}>
-              <h4 className="form-label">*Project Image</h4>
+              <h4 className="form-label">Project Image</h4>
               <Form.Item name="Image" rules={[{ required: false }]}>
                 <BannerImageUploader
                   uploadLength={1}
@@ -240,7 +239,7 @@ const ProjectModal = (props) => {
                   readOnly={mode.current == "view" ? true : false}
                   maxLength={20}
                   name="projectTitle"
-                  value={state.packageName}
+                  value={state.projectTitle}
                   placeholder="Project Title"
                   onChange={handleChange}
                 />
@@ -249,12 +248,22 @@ const ProjectModal = (props) => {
 
             <Col span={12}>
               <h4 className="form-label">*Github Link</h4>
-              <Form.Item name="Github Link" rules={[{ required: true }]}>
+              <Form.Item
+                name="Github Link"
+                rules={[
+                  {
+                    required: true,
+                    message: "Enter a valid GitHub URL",
+                    pattern:
+                      /^(https:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+\/?$/,
+                  },
+                ]}
+              >
                 <InputWrapper
                   readOnly={mode.current == "view" ? true : false}
                   maxLength={100}
                   name="githubLink"
-                  value={state.packageName}
+                  value={state.githubLink}
                   placeholder="Github Link"
                   onChange={handleChange}
                 />
@@ -263,12 +272,15 @@ const ProjectModal = (props) => {
 
             <Col span={12}>
               <h4 className="form-label">*Live URL</h4>
-              <Form.Item name="Live URL" rules={[{ required: true }]}>
+              <Form.Item
+                name="Live URL"
+                rules={[{ required: true, message: "Enter a valid URL", type: "url" }]}
+              >
                 <InputWrapper
                   readOnly={mode.current == "view" ? true : false}
                   maxLength={100}
                   name="liveLink"
-                  value={state.packageName}
+                  value={state.liveLink}
                   placeholder="Live URL"
                   onChange={handleChange}
                 />
@@ -291,15 +303,14 @@ const ProjectModal = (props) => {
             </Col>
 
             <Col span={24}>
-              <h4 className="form-label">*Tech Stack</h4>
+              <h4 className="form-label">Tech Stack</h4>
 
               <div className="description-container" ref={descriptionRef}>
                 {state.techStack?.map((item, index) => (
                   <div
                     className="description-wrapper"
                     style={{
-                      justifyContent:
-                        mode.current == "View Package" ? "center" : "space-between",
+                      justifyContent: mode.current == "view" ? "center" : "space-between",
                     }}
                   >
                     <div key={index} className="description">
@@ -358,10 +369,10 @@ const ProjectModal = (props) => {
                   if (e.key === "Enter") {
                     if (e.target.value !== "") {
                       e.preventDefault();
-                      state.packageIncludes.push(e.target.value);
+                      state.techStack.push(e.target.value);
                       setState({ ...state });
                       descriptionRef.current.scrollTo({
-                        top: (state.packageIncludes.length + 1) * 48,
+                        top: (state.techStack.length + 1) * 48,
                         behavior: "smooth",
                       });
                       e.target.value = "";

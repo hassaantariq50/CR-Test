@@ -1,21 +1,6 @@
 import styled from "styled-components";
 import { Button } from "antd";
 
-export const TableButton = styled(Button)`
-  border: 1px solid #4f56c0;
-  outline: none;
-  color: #4f56c0;
-  border-radius: 4px;
-  background-color: transparent;
-  cursor: pointer;
-  transition: 0.5s;
-  &:hover,
-  &:focus {
-    color: #fff !important;
-    background-color: #4f56c0;
-  }
-`;
-
 export const ButtonWrapper = styled(Button)`
   width: 80%;
   display: flex;

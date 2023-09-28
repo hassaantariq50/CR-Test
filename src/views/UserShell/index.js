@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Route, Switch } from "react-router-dom";
-import { Layout, message } from "antd";
+import { Layout } from "antd";
 import HeaderWrapper from "components/header/headerWrapper";
 import FooterWrapper from "components/footer/footerWrapper";
 import SidebarWrapper from "components/sidebar/sidebarWrapper";
@@ -11,6 +11,7 @@ import SidebarWrapper from "components/sidebar/sidebarWrapper";
 import Dashboard from "./Dashboard";
 import Projects from "./AllProjects";
 import ArchivedProjects from "./ArchivedProjects";
+import CompletedProjects from "./CompletedProjects";
 
 const { Content } = Layout;
 
@@ -46,7 +47,7 @@ const UserShell = () => {
                   <Route
                     exact
                     path="/dashboard/projects/completed"
-                    component={ArchivedProjects}
+                    component={CompletedProjects}
                   />
 
                   {/* <Route exact path="/download" component={Download} />

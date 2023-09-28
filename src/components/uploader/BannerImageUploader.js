@@ -30,7 +30,7 @@ const ImageUploadWrapper = styled(Upload)`
     border-radius: 10px;
   }
   .ant-upload-list-item-actions button {
-    display: ${(props) => (props.mode == "View Package" ? "none" : null)};
+    display: ${(props) => (props.mode == "view" ? "none" : null)};
   }
 `;
 
