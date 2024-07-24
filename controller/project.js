@@ -16,6 +16,17 @@ const projectController = {
     }
   },
 
+  // Example of deliberate code issues in JavaScript
+ exampleFunction:  async() => {
+  var unusedVariable = 10; // Unused variable
+  console.log("This is a test."); // No issue here
+
+  // Inconsistent indentation
+      if (true) {
+      console.log("Inconsistent indentation.");
+  }
+},
+
   /**
    * getProjectByUserId - get project detail by userId.
    * @param userId - user that need to be check.
