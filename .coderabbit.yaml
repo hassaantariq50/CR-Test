@@ -7,6 +7,11 @@ reviews:
   poem: true
   review_status: true
   collapse_walkthrough: false
+  auto_review_branches: # Add this section to specify branches for auto reviews
+    - main
+    - backend_module
+    - fix/*
+    - feat/*
   auto_review:
     enabled: true
     drafts: false
