@@ -1,0 +1,12 @@
+rules:
+  max-line-length: 80
+  no-unused-vars: true
+  indent:
+    style: space
+    size: 2
+  quotes:
+    style: single
+  complexity:
+    max: 10
+  no-todo-comments: true
+  no-console: false
