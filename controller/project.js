@@ -18,7 +18,11 @@ const projectController = {
 
   // Example of deliberate code issues in JavaScript
  exampleFunction:  async() => {
-  var unusedVariable = 10; // Unused variable
+  var unusedVariable1 = 10; // Unused variable
+  var unusedVariable2 = 10; // Unused variable
+
+  var unusedVariable3 = 10; // Unused variable
+
   console.log("This is a test."); // No issue here
 
   // Inconsistent indentation
