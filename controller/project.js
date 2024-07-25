@@ -22,12 +22,16 @@ const projectController = {
   var unusedVariable2 = 10; // Unused variable
 
   var unusedVariable3 = 10; // Unused variable
+  var unusedVariable4 = 10; // Unused variable
+
+  var unusedVariable5 = 10; // Unused variable
+
 
   console.log("This is a test."); // No issue here
 
   // Inconsistent indentation
-      if (true) {
-      console.log("Inconsistent indentation.");
+        if (true) {
+        console.log("Inconsistent indentation.");
   }
 },
 
